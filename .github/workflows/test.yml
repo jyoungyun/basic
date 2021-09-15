@@ -6,7 +6,7 @@ on:
 
 jobs:
   test_1:
-    runs-on: [ code-default ]
+    runs-on: [ ubuntu-latest ]
 
     container:
       image: ubuntu:18.04
@@ -21,7 +21,7 @@ jobs:
   test_2:
     needs: test_1
 
-    runs-on: [ code-default ]
+    runs-on: [ ubuntu-latest ]
 
     container:
       image: ubuntu:18.04
@@ -32,4 +32,19 @@ jobs:
 
       - name: Second step
         run: echo "Buon giorno Second step"
+
+  test_3:
+    needs: test_1
+
+    runs-on: [ ubuntu-latest ]
+
+    container:
+      image: ubuntu:18.04
+
+    steps:
+      - name: First step
+        run: echo "Ciao First step"
+
+      - name: Second step
+        run: echo "Ciao Second step"
 
