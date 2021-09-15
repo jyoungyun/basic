@@ -1,0 +1,35 @@
+name: test
+
+on:
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  test_1:
+    runs-on: [ code-default ]
+
+    container:
+      image: ubuntu:18.04
+
+    steps:
+      - name: First step
+        run: echo "hello First step"
+
+      - name: Second step
+        run: echo "hello Second step"
+
+  test_2:
+    needs: test_1
+
+    runs-on: [ code-default ]
+
+    container:
+      image: ubuntu:18.04
+
+    steps:
+      - name: First step
+        run: echo "Buon giorno First step"
+
+      - name: Second step
+        run: echo "Buon giorno Second step"
+
