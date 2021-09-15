@@ -57,6 +57,21 @@ jobs:
       - name: Second step
         run: echo "Ciao Second step"
 
+  test_4:
+    needs: test_2
+
+    runs-on: [ ubuntu-latest ]
+
+    container:
+      image: ubuntu:18.04
+
+    steps:
+      - name: First step
+        run: echo "Ciao First step"
+
+      - name: Second step
+        run: echo "Ciao Second step"
+
   test_2004_1:
     runs-on: [ ubuntu-latest ]
 
