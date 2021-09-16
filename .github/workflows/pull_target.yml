@@ -9,15 +9,11 @@ jobs:
 
     steps:
       - name: First step
-        run: echo "GITBOT_GITHUB_TOKEN: ???"
+        run: echo "pull request target test"
 
       - uses: actions/checkout@v2
 
-      - name: Save PR number
-        run: |
-          mkdir -p ./pr
-          echo ${{ github.event.number }} > ./pr/NR
-      - uses: actions/upload-artifact@v2
+      - name: Comment on PR
+        uses: actions/github-script@v3
         with:
-          name: pr
-          path: pr/
+          github-token: ${{ secrets.GITHUB_TOKEN }}
