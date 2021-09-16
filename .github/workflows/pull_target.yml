@@ -25,11 +25,11 @@ jobs:
             let fileContent = ""
 
             const reader = new FileReader()
-            reader.onload = functon() {
+            reader.onload = () => {
               fileContent = reader.result
               console.log('Content', fileContent)
             }
-            reader.onerror = function() {
+            reader.onerror = () => {
               console.log(reader.error)
             }
 
