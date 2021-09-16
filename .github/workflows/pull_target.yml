@@ -10,3 +10,14 @@ jobs:
     steps:
       - name: First step
         run: echo "pull request target test"
+
+      - uses: actions/checkout@v2
+
+      - name: Save PR number
+        run: |
+          mkdir -p ./pr
+          echo ${{ github.event.number }} > ./pr/NR
+      - uses: actions/upload-artifact@v2
+        with:
+          name: pr
+          path: pr/
