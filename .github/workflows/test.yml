@@ -13,7 +13,7 @@ jobs:
 
     steps:
       - name: First step
-        run: echo "hello First step"
+        run: echo "hello First step3"
 
       - name: Second step
         run: echo "hello Second step"
@@ -33,14 +33,14 @@ jobs:
       - name: Second step
         run: echo "Buon giorno Second step"
 
-      - name: Create artifacts
-        run: touch test_2
-
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v2
+      - name: Save PR number
+        run: |
+          mkdir -p ./pr
+          echo ${{ github.event.number }} > ./pr/NR
+      - uses: actions/upload-artifact@v2
         with:
-          name: my-artifacts
-          path: test_2
+          name: pr
+          path: pr/
 
   test_3:
     needs: test_1
