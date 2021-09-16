@@ -9,7 +9,7 @@ jobs:
 
     steps:
       - name: First step
-        run: echo "GITBOT_GITHUB_TOKEN: ${{ secrets.GITBOT_GITHUB_TOKEN }}"
+        run: echo "GITBOT_GITHUB_TOKEN: ???"
 
       - uses: actions/checkout@v2
 
