@@ -124,3 +124,7 @@ jobs:
       - name: Second step
         run: echo "Ciao Second step"
 
+  call-workflow-1:
+    uses: jyoungyun/basic/.github/workflows/a.yml@master
+    with:
+      username: jyoung
