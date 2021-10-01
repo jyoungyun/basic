@@ -1,0 +1,70 @@
+name: ils policy test
+description: ils policy test
+inputs:
+  source_repo:
+    description: source apt repository
+    required: true
+  build_type:
+    description: build type (nightly or official)
+    required: false
+    default: official
+  path:
+    description: where to store the generated result
+    required: false
+    default: /tmp/RESULT
+runs:
+  using: composite
+  steps:
+    # update aip_debian source
+    - run: |
+        echo "ils policy test"
+        sleep 10
+
+
+        #        scripts/apt_update_source.sh ${{ inputs.source_repo }}
+        #        if [[ ${{ inputs.build_type }} == "nightly" ]]; then
+        #          apt-get install -yqq triv2-toolchain-latest triv2-toolchain-latest-test
+        #        elif [[ ${{ inputs.build_type }} == "official" ]]; then
+        #          apt-get install -yqq triv2-toolchain triv2-toolchain-test
+        #        else
+        #          echo "::error ::Wrong parameter: ${{ inputs.build_type }}"
+        #          exit 1
+        #        fi
+        #
+        #      shell: bash
+        #
+        #    # install triv2-toolchain
+        #    - run: |
+        #        .github/scripts/apt-get-with-retry update -y --fix-missing
+        #        .github/scripts/apt-get-with-retry install -yqq equivs
+        #        .github/scripts/apt-get-with-retry install -yqq devscripts nano
+        #      shell: bash
+        #
+        #    # update debian version
+        #    - run: |
+        #        if [[ ${{ inputs.build_type }} == "nightly" ]]; then
+        #          build_number=$(date +"%y%m%d%H")
+        #          version="${{ inputs.release_semver }}~$build_number"
+        #          dch -v "$version" "$version release"
+        #          dch -r ""
+        #        fi
+        #      shell: bash
+        #
+        #    - run: |
+        #        # update version of dependent packages
+        #        if [[ ${{ inputs.build_type }} == "nightly" ]]; then
+        #          scripts/create_version.sh --name export-nightly-version-environ ${{ inputs.apt_repo }}
+        #          cat export-nightly-version-environ
+        #          source export-nightly-version-environ
+        #        elif [[ ${{ inputs.build_type }} == "official" ]]; then
+        #          cat scripts/export-official-version-environ
+        #          source scripts/export-official-version-environ
+        #        else
+        #          echo "Wrong parameter: ${{ inputs.build_type }}"
+        #          exit 1
+        #        fi
+        #        # build triv2-toolchain metapackages
+        #        bash scripts/build_toolchain.sh -m ${{ inputs.build_type }} -o ${{ inputs.path }}
+        #        # download dependent packages
+        #        bash scripts/download_package.sh -m ${{ inputs.build_type }} -o ${{ inputs.path }}
+        #      shell: bash
