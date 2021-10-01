@@ -1,0 +1,89 @@
+name: release
+
+on:
+  pull_request:
+    branches: [ master ]
+
+env:
+  RELEASE_SEMVER: 1.1.0
+  BUILD_TYPE: nightly
+
+jobs:
+  set_strategy:
+    runs-on: [ ubuntu-latest ]
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+    steps:
+      - name: Get current date
+        id: date
+        run: |
+          echo "::set-output name=date::$(date +'%y%m%d%H')"
+      - name: Generate release configuration matrix
+        id: set-matrix
+        run: |
+          ubuntu_1804="{ \
+            \"os\":\"docker-remote\/ubuntu:18.04\", \
+            \"test_os\":\"aip_docker\/triv\/testpack-deps:18.04\", \
+            \"source_repo\":\"bionic-nightly\", \
+            \"target_repo\":\"bionic-dev\", \
+            \"test_repo\":\"bionic-nightly-test-${{ steps.date.outputs.date }}\" }"
+          ubuntu_2004="{ \
+            \"os\":\"docker-remote\/ubuntu:20.04\", \
+            \"test_os\":\"aip_docker\/triv\/testpack-deps:20.04\", \
+            \"source_repo\":\"focal-nightly\", \
+            \"target_repo\":\"focal-dev\", \
+            \"test_repo\":\"focal-nightly-test-${{ steps.date.outputs.date }}\" }"
+          echo "::set-output name=matrix::{\"include\":[$ubuntu_1804, $ubuntu_2004]}"
+
+  build_metapkgs:
+    needs: set_strategy
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJson(needs.set_strategy.outputs.matrix) }}
+    runs-on: [ ubuntu-latest ]
+    steps:
+      - name: Print configuration
+        run: |
+          touch ${{ matrix.source_repo }}.conf
+          echo "os: ${{ matrix.os }}" | tee -a ${{ matrix.source_repo }}.conf
+          echo "test_os: ${{ matrix.test_os }}" | tee -a ${{ matrix.source_repo }}.conf
+          echo "source_repo: ${{ matrix.source_repo }}" | tee -a ${{ matrix.source_repo }}.conf
+          echo "target_repo: ${{ matrix.target_repo }}" | tee -a ${{ matrix.source_repo }}.conf
+          echo "test_repo: ${{ matrix.test_repo }}" | tee -a ${{ matrix.source_repo }}.conf
+          cat ${{ matrix.source_repo }}.conf
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ matrix.source_repo }}-file
+          path: ${{ matrix.source_repo }}.conf
+          redention-days: 5
+
+  simulate_test_packages:
+    needs:
+      - set_strategy
+      - build_metapkgs
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJson(needs.set_strategy.outputs.matrix) }}
+    runs-on: [ ubuntu-latest ]
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v2
+        with:
+          name: ${{ matrix.source_repo }}-file
+      - name: Print configuration
+        run: |
+          cat ${{ matrix.source_repo }}.conf
+
+  delete_test_repository:
+    needs:
+      - set_strategy
+      - simulate_test_packages
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJson(needs.set_strategy.outputs.matrix) }}
+    runs-on: [ ubuntu-latest ]
+    steps:
+      - name: Print configuration
+        run: |
+          echo "delete_test_repository"
