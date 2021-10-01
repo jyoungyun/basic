@@ -22,14 +22,14 @@ jobs:
         id: set-matrix
         run: |
           ubuntu_1804="{ \
-            \"os\":\"docker-remote\/ubuntu:18.04\", \
-            \"test_os\":\"aip_docker\/triv\/testpack-deps:18.04\", \
+            \"os\":\"ubuntu-18.04\", \
+            \"test_os\":\"ubuntu-18.04\", \
             \"source_repo\":\"bionic-nightly\", \
             \"target_repo\":\"bionic-dev\", \
             \"test_repo\":\"bionic-nightly-test-${{ steps.date.outputs.date }}\" }"
           ubuntu_2004="{ \
-            \"os\":\"docker-remote\/ubuntu:20.04\", \
-            \"test_os\":\"aip_docker\/triv\/testpack-deps:20.04\", \
+            \"os\":\"ubuntu-20.04\", \
+            \"test_os\":\"ubuntu-20.04\", \
             \"source_repo\":\"focal-nightly\", \
             \"target_repo\":\"focal-dev\", \
             \"test_repo\":\"focal-nightly-test-${{ steps.date.outputs.date }}\" }"
@@ -40,7 +40,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix: ${{ fromJson(needs.set_strategy.outputs.matrix) }}
-    runs-on: [ ubuntu-latest ]
+    runs-on: [ ${{ matrix.os }} ]
     steps:
       - name: Print configuration
         run: |
@@ -65,7 +65,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix: ${{ fromJson(needs.set_strategy.outputs.matrix) }}
-    runs-on: [ ubuntu-latest ]
+    runs-on: [ ${{ matrix.os }} ]
     steps:
       - name: Download artifacts
         uses: actions/download-artifact@v2
@@ -75,14 +75,61 @@ jobs:
         run: |
           cat ${{ matrix.source_repo }}.conf
 
-  delete_test_repository:
+  run_integration_test:
     needs:
       - set_strategy
       - simulate_test_packages
     strategy:
       fail-fast: false
       matrix: ${{ fromJson(needs.set_strategy.outputs.matrix) }}
-    runs-on: [ ubuntu-latest ]
+        test: [all-model-test, one-cmds-test]
+    runs-on: [ ${{ matrix.test_os }} ]
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v2
+      - name: Run all model test
+        id: all-model-test
+        if: ${{ matrix.test == 'all-model-test' }}
+        uses: ./.github/actions/all-model-test
+        with:
+          source_repo: ${{ matrix.test_repo }}
+          build_type: ${{ env.BUILD_TYPE }}
+          enable_data_download: 1
+          trivsetup_generate_tv2s: 1
+          path: /tmp/RESULT
+      - name: Run ils compile test
+        id: ils-compile-test
+        if: ${{ matrix.test == 'all-model-test' && steps.all-model-test.conclusion == 'success'}}
+        uses: ./.github/actions/ils-compile-test
+        with:
+          source_repo: ${{ matrix.test_repo }}
+          build_type: ${{ env.BUILD_TYPE }}
+          path: /tmp/RESULT
+      - name: Run ils policy test
+        id: ils-ils-policy-test
+        if: ${{ matrix.test == 'all-model-test' && steps.ils-compile-test.conclusion == 'success'}}
+        uses: ./.github/actions/ils-policy-test
+        with:
+          source_repo: ${{ matrix.test_repo }}
+          build_type: ${{ env.BUILD_TYPE }}
+          path: /tmp/RESULT
+      - name: Run one cmds test
+        id: one-cmds-test
+        if: ${{ matrix.test == 'one-cmds-test' }}
+        uses: ./.github/actions/one-cmds-test
+        with:
+          source_repo: ${{ matrix.test_repo }}
+          build_type: ${{ env.BUILD_TYPE }}
+          path: /tmp/RESULT
+
+  delete_test_repository:
+    needs:
+      - set_strategy
+      - run_integration_test
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJson(needs.set_strategy.outputs.matrix) }}
+    runs-on: [ ${{ matrix.os }} ]
     steps:
       - name: Print configuration
         run: |
