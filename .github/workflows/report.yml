@@ -1,3 +1,5 @@
+name: report
+
 on:
   pull_request:
 jobs:
@@ -11,5 +13,6 @@ jobs:
           curl \
             -X POST \
             -H "Accept: application/vnd.github.v3+json" \
+            -H "Authorization":"token ${{ github.token }}" \
             https://api.github.com/repos/jyoungyun/basic/check-runs \
             -d '{"name":"hello","head_sha":"${{ github.head_ref }}"}'
