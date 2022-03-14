@@ -1,0 +1,34 @@
+name: Publish extension
+
+on:
+  # For test
+  pull_request:
+  repository_dispatch:
+    types: [ publish-extension ]
+  schedule:
+    # 05:00 AM (KST) Mon-Fri
+    - cron: '00 20 * * 0-4'
+
+jobs:
+  publish-extension:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+        with:
+          node-version: '16'
+      - name: Install vsce tool
+        run: npm install -g vsce
+      - name: Build vsix package
+        run: |
+          vsce package
+          ls -al *.vsix
+      # TODO Enable publish job
+      - name: Publish vsix package
+        if: ${{ false }}
+        run: |
+          vsce publish
+      - name: Upload vsix package
+        uses: actions/upload-artifact@v3
+        with:
+          path: one-vscode.vsix
