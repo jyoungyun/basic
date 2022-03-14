@@ -1,0 +1,27 @@
+name: Check Commit
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  check-signed-off-by:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v2
+        with:
+          node-version: '16'
+      - run: npm install
+      - run: |
+          ROLL_BACK_COUNT=$(( ${{ github.event.pull_request.commits }} - 1 ))
+          git log --format=%B -n 1 ${{ github.event.after }}~${ROLL_BACK_COUNT} > main_commit_msg
+          cat main_commit_msg
+      - run: |
+          git log --format=%B -n 1 ${{ github.event.after }} > main_commit_msg
+          cat main_commit_msg
+
