@@ -40,5 +40,5 @@ jobs:
               issue_number: ${{ needs.create-issue.outputs.issue_number }},
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: `Test comment`
+              body: `:heavy_check_mark: Test done`
             })
