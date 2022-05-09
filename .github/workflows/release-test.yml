@@ -6,6 +6,12 @@ on:
       tag:
         description: 'Release tag'
         required: true
+      draft:
+        description: 'Create a draft (unpublished) release (default: false)'
+        default: false
+      prerelease:
+        description: 'Identify the release as a prerelease (default: false)'
+        default: false
 
 jobs:
   create-issue:
@@ -42,3 +48,35 @@ jobs:
               repo: context.repo.repo,
               body: `:heavy_check_mark: Test done`
             })
+  create-artifacts:
+    needs: [ create-comment ]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - run: touch abc.txt
+  create-release:
+    needs: create-artifacts
+    runs-on: ubuntu-latest
+    steps:
+      - name: Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.event.inputs.tag }}
+          release_name: Release ${{ github.event.inputs.tag }}
+          body: |
+            Changes in this Release
+          draft: ${{ github.event.inputs.draft }}
+          prerelease: ${{ github.event.inputs.prerelease }}
+      - name: Upload artifact
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./abc.txt
+          asset_name: abc.txt
+          asset_content_type: application/vsix
+
