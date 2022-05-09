@@ -10,8 +10,12 @@ on:
 jobs:
   create-issue:
     runs-on: ubuntu-latest
+    outputs:
+      issue_number: ${{ steps.create_issue.outputs.issue_number }}
     steps:
-      - uses: actions/github-script@v6
+      - name: Create issue
+        id: create_issue
+        uses: actions/github-script@v6
         with:
           script: |
             github.rest.issues.create({
@@ -21,4 +25,19 @@ jobs:
               body: `Let's release tag version`
             }).then(response => {
               console.log(response.data);
+              core.setOutput('issue_number', response.data.number);
+            })
+  create-comment:
+    needs: create-issue
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create comment
+        uses: actions/github-script@v6
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: ${{ needs.create-issue.outputs.issue_number }},
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `Test comment`
             })
