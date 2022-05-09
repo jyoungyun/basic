@@ -22,7 +22,8 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo,
               title: `Release tag version`,
-              body: `Let's release tag version`
+              body: `Let's release tag version`,
+              labels: ['release']
             }).then(response => {
               console.log(response.data);
               core.setOutput('issue_number', response.data.number);
