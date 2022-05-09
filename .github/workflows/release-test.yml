@@ -3,7 +3,7 @@ name: Create release
 on:
   workflow_dispatch:    # Allow manual triggers
     inputs:
-      tags:
+      tag:
         description: 'Release tag'
         required: true
 
@@ -21,8 +21,8 @@ jobs:
             github.rest.issues.create({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              title: `Release tag version`,
-              body: `Let's release tag version`,
+              title: `Release ${{ github.event.inputs.tag }} version`,
+              body: `Let's release ${{ github.event.inputs.tag }} version`,
               labels: ['release']
             }).then(response => {
               console.log(response.data);
