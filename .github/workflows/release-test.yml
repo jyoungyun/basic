@@ -6,6 +6,12 @@ on:
       tag:
         description: 'Release tag'
         required: true
+      draft:
+        description: 'Create a draft (unpublished) release (default: false)'
+        default: false
+      prerelease:
+        description: 'Identify the release as a prerelease (default: false)'
+        default: false
 
 jobs:
   create-issue:
@@ -42,3 +48,16 @@ jobs:
               repo: context.repo.repo,
               body: `:heavy_check_mark: Test done`
             })
+  create-release:
+    needs: create-comment
+    runs-on: ubuntu-latest
+    steps:
+      - name: Release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.event.inputs.tag }}
+          release_name: Release ${{ github.event.inputs.tag }}
+          draft: ${{ github.event.inputs.draft }}
+          prerelease: ${{ github.event.inputs.prerelease }}
