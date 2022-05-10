@@ -51,21 +51,26 @@ jobs:
   create-artifacts:
     needs: [ create-comment ]
     runs-on: ubuntu-latest
+    outputs:
+      package_name: ${{ steps.find-file.outputs.package_name }}
     steps:
       - run: echo "Hello, this is sample test file" > abc.txt
+      - id: find-file
+        run: |
+          fname=$(find . -name "*.txt" | xargs -I {} basename {})
+          echo "::set-output name=package_name::$fname"
       - name: Upload vsix package
         uses: actions/upload-artifact@v3
         with:
-          name: one-vscode-extension
-          path: ./*.txt
+          name: ${{ steps.find-file.outputs.package_name }}
+          path: ./${{ steps.find-file.outputs.package_name }}
   create-release:
     needs: create-artifacts
     runs-on: ubuntu-latest
     steps:
       - uses: actions/download-artifact@v3
         with:
-          name: one-vscode-extension
-      - run: ls -al
+          name: ${{ needs.create-artifacts.outputs.package_name }}
       - name: Release
         id: create_release
         uses: actions/create-release@v1
@@ -84,6 +89,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./abc.txt
-          asset_name: abc.txt
+          asset_path: ./${{ needs.create-artifacts.outputs.package_name }}
+          asset_name: ${{ needs.create-artifacts.outputs.package_name }}
           asset_content_type: application/txt
