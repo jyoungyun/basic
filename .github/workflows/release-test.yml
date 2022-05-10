@@ -32,6 +32,7 @@ jobs:
               labels: ['release']
             }).then(response => {
               console.log(response.data);
+              console.log(github);
               core.setOutput('issue_number', response.data.number);
             })
   create-comment:
