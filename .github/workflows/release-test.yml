@@ -52,7 +52,6 @@ jobs:
     needs: [ create-comment ]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
       - run: echo "Hello, this is sample test file" > abc.txt
       - name: Upload vsix package
         uses: actions/upload-artifact@v3
@@ -63,7 +62,6 @@ jobs:
     needs: create-artifacts
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
       - uses: actions/download-artifact@v3
         with:
           name: one-vscode-extension
