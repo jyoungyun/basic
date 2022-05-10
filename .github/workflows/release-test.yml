@@ -49,7 +49,7 @@ jobs:
               body: `:heavy_check_mark: Test done`
             })
   create-artifacts:
-    needs: [ create-comment ]
+    needs: [create-comment, create-issue]
     runs-on: ubuntu-latest
     outputs:
       package_name: ${{ steps.find-file.outputs.package_name }}
