@@ -92,3 +92,12 @@ jobs:
           asset_path: ./${{ needs.create-artifacts.outputs.package_name }}
           asset_name: ${{ needs.create-artifacts.outputs.package_name }}
           asset_content_type: application/txt
+  delete-artifacts:
+    needs:
+      - create-release
+      - create-artifacts
+    runs-on: ubuntu-latest
+    steps:
+      - uses: geekyeggo/delete-artifact@v1
+        with:
+          name: ${{ needs.create-artifacts.outputs.package_name }}
