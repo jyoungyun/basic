@@ -28,10 +28,12 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo,
               title: `Release ${{ github.event.inputs.tag }} version`,
-              body: `Let's release ${{ github.event.inputs.tag }} version`,
+              body: `## Let's release ${{ github.event.inputs.tag }} version\n
+              [actions]('https://github.com/' + github.repository + '/actions/runs/' + github.run_id)`,
               labels: ['release']
             }).then(response => {
               console.log(response.data);
+              console.log('https://github.com/' + github.repository + '/actions/runs/' + github.run_id);
               core.setOutput('issue_number', response.data.number);
             })
   create-comment:
